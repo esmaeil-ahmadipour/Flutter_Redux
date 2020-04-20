@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  redux: ^4.0.0
+  flutter_lorem: ^1.1.0
+  flutter_redux: ^0.6.0
 
 
   cupertino_icons: ^0.1.2
