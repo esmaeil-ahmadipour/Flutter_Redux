@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutterredux/drawer_menu.dart';
+import 'package:flutterredux/models/app_state.dart';
+import 'package:flutterredux/redux/actions.dart';
 
-class Settings extends StatefulWidget {
-  @override
-  _SettingsState createState() => _SettingsState();
-}
-
-class _SettingsState extends State<Settings> {
-  double _value = 0.5;
-  bool isBold = false;
-  bool isItalic = false;
-
+class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,69 +13,69 @@ class _SettingsState extends State<Settings> {
         title: Text('Settings'),
       ),
       drawer: DrawerMenu(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(left: 20, top: 20),
-            child: Text(
-              'Font Size: ${getFontSize()}',
-              style: TextStyle(
-                  fontSize: Theme.of(context).textTheme.headline.fontSize),
-            ),
-          ),
-          Slider(
-              min: 0.5,
-              value: _value,
-              onChanged: (newValue) {
-                setState(() {
-                  _value = newValue;
-                });
-                print(newValue);
-              }),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: <Widget>[
-                Checkbox(
-                  value: isBold,
-                  onChanged: (newVal) {
-                    setState(() {
-                      isBold = newVal;
-                    });
-                  },
+      body: StoreConnector<AppState, AppState>(
+        converter: (store) => store.state,
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(left: 20, top: 20),
+                child: Text(
+                  'Font Size: ${state.viewFontSize.toInt()}',
+                  style: TextStyle(
+                      fontSize: Theme.of(context).textTheme.headline.fontSize),
                 ),
-                Text(
-                  'Bold',
-                  style: getStyle(isBold, false),
+              ),
+              Slider(
+                  min: 0.5,
+                  value: state.sliderFontSize,
+                  onChanged: (newValue) {
+                    StoreProvider.of<AppState>(context)
+                        .dispatch(FontSize(newValue));
+                    print(newValue);
+                  }),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: <Widget>[
+                    Checkbox(
+                      value: state.bold,
+                      onChanged: (newVal) {
+                        StoreProvider.of<AppState>(context)
+                            .dispatch(Bold(newVal));
+                      },
+                    ),
+                    Text(
+                      'Bold',
+                      style: getStyle(state.bold, false),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: <Widget>[
-                Checkbox(
-                    value: isItalic,
-                    onChanged: (newVal) {
-                      setState(() {
-                        isItalic = newVal;
-                      });
-                    }),
-                Text(
-                  'Italic',
-                  style: getStyle(false, isItalic),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: <Widget>[
+                    Checkbox(
+                        value: state.italic,
+                        onChanged: (newVal) {
+                          StoreProvider.of<AppState>(context)
+                              .dispatch(Italic(newVal));
+                        }),
+                    Text(
+                      'Italic',
+                      style: getStyle(false, state.italic),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
-
-  int getFontSize() => (_value * 30).toInt();
 
   TextStyle getStyle([bool isBold = false, bool isItalic = false]) {
     return TextStyle(
